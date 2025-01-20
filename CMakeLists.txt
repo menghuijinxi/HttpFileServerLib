@@ -21,6 +21,5 @@ find_package(fmt CONFIG REQUIRED)
 target_link_libraries(HttpTest PRIVATE fmt::fmt)
 target_link_libraries(HttpTest PRIVATE HttpFileServerLib)
 
-install(TARGETS HttpFileServerLib DESTINATION bin)
-install(TARGETS HttpFileServerLib DESTINATION lib)
+install(TARGETS HttpFileServerLib)
 install(FILES HttpFileServerLib.h DESTINATION include)
