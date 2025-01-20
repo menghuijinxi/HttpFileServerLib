@@ -1,0 +1,12 @@
+{
+    "version": 2,
+    "configurePresets": [
+      {
+        "name": "X64_Debug",
+        "inherits": "Visual Studio Community 2022 Release - amd64",
+        "environment": {
+          "VCPKG_ROOT": "${sourceDir}/out/vcpkg"
+        }
+      }
+    ]
+  }

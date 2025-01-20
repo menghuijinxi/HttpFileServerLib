@@ -1,0 +1,11 @@
+{
+  "name": "versions-test",
+  "version": "1.0.0",
+  "dependencies": [
+	  {
+      "name": "openssl"
+    },
+    "boost-filesystem",
+    "fmt"
+  ]
+}
