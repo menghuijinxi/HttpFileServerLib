@@ -962,6 +962,10 @@ enum class Error {
 
   // For internal use only
   SSLPeerCouldBeClosed_,
+
+  SSLServerVerification1,
+  SSLServerVerification2,
+  SSLServerVerificationLast = SSLServerVerification2,
 };
 
 std::string to_string(const Error error);
@@ -8553,6 +8557,8 @@ inline bool SSLClient::load_certs() {
   return ret;
 }
 
+#include "iostream"
+
 inline bool SSLClient::initialize_ssl(Socket &socket, Error &error) {
   auto ssl = detail::ssl_new(
       socket.sock, ctx_, ctx_mutex_,
@@ -8576,20 +8582,20 @@ inline bool SSLClient::initialize_ssl(Socket &socket, Error &error) {
           verify_result_ = SSL_get_verify_result(ssl2);
 
           if (verify_result_ != X509_V_OK) {
-            error = Error::SSLServerVerification;
+            error = (Error)((int)Error::SSLServerVerificationLast + verify_result_);
             return false;
           }
 
           auto server_cert = SSL_get1_peer_certificate(ssl2);
 
           if (server_cert == nullptr) {
-            error = Error::SSLServerVerification;
+            error = Error::SSLServerVerification1;
             return false;
           }
 
           if (!verify_host(server_cert)) {
             X509_free(server_cert);
-            error = Error::SSLServerVerification;
+            error = Error::SSLServerVerification2;
             return false;
           }
           X509_free(server_cert);
