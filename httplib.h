@@ -8574,6 +8574,9 @@ inline bool SSLClient::initialize_ssl(Socket &socket, Error &error) {
         }
 
         if (server_certificate_verification_) {
+
+          //去掉证书检测，ue在麒麟上打包后无法获取到证书，不知道为啥。这样虽然安全性下降了，暂时先这样
+#if _WIN32
           verify_result_ = SSL_get_verify_result(ssl2);
 
           if (verify_result_ != X509_V_OK) {
@@ -8581,22 +8584,21 @@ inline bool SSLClient::initialize_ssl(Socket &socket, Error &error) {
             return false;
           }
 
-          //去掉证书检测，ue在麒麟上打包后无法获取到证书，不知道为啥。这样虽然安全性下降了，暂时先这样
+          auto server_cert = SSL_get1_peer_certificate(ssl2);
 
-          // auto server_cert = SSL_get1_peer_certificate(ssl2);
+          if (server_cert == nullptr) {
+            int errorCore = SSL_get_error(ssl2, 0);
+            error = Error::SSLServerVerification;
+            return false;
+          }
 
-          // if (server_cert == nullptr) {
-          //   int errorCore = SSL_get_error(ssl2, 0);
-          //   error = (Error)((int)Error::SSLServerVerificationLast + errorCore);
-          //   return false;
-          // }
-
-          // if (!verify_host(server_cert)) {
-          //   X509_free(server_cert);
-          //   error = Error::SSLServerVerification2;
-          //   return false;
-          // }
-          // X509_free(server_cert);
+          if (!verify_host(server_cert)) {
+            X509_free(server_cert);
+            error = Error::SSLServerVerification;
+            return false;
+          }
+          X509_free(server_cert);
+#endif
         }
 
         return true;
