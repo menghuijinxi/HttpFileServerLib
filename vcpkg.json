@@ -5,7 +5,9 @@
 	  {
       "name": "openssl"
     },
-    "boost-filesystem",
-    "fmt"
+    "fmt",
+    "nlohmann-json",
+    "boost-algorithm",
+    "boost-nowide"
   ]
 }

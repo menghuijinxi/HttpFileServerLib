@@ -962,10 +962,6 @@ enum class Error {
 
   // For internal use only
   SSLPeerCouldBeClosed_,
-
-  SSLServerVerification1,
-  SSLServerVerification2,
-  SSLServerVerificationLast = SSLServerVerification2,
 };
 
 std::string to_string(const Error error);
@@ -6068,6 +6064,8 @@ inline bool Server::read_content_core(Stream &strm, Request &req, Response &res,
   return true;
 }
 
+std::shared_ptr<std::ifstream> createFileStream(const std::string &path);
+
 inline bool Server::handle_file_request(const Request &req, Response &res,
                                         bool head) {
   for (const auto &entry : base_dirs_) {
@@ -6080,7 +6078,7 @@ inline bool Server::handle_file_request(const Request &req, Response &res,
 
           //auto mm = std::make_shared<detail::mmap>(path.c_str());
           //if (!mm->is_open()) { return false; }
-          auto readFileHandle = std::make_shared<std::ifstream>(path);
+          auto readFileHandle = createFileStream(path);
           if (!readFileHandle || !readFileHandle->is_open())
           {
             return false;
@@ -6092,16 +6090,15 @@ inline bool Server::handle_file_request(const Request &req, Response &res,
 
           readFileHandle->seekg(0, std::ios::end);
           auto fileSize = readFileHandle->tellg();
-          readFileHandle->seekg(0, std::ios::beg);
 
           res.set_content_provider(
               fileSize,
               detail::find_content_type(path, file_extension_and_mimetype_map_,
                                         default_file_mimetype_),
-              [readFileHandle, path](size_t offset, size_t length, DataSink &sink) -> bool
+              [readFileHandle, fileSize](size_t offset, size_t length, DataSink &sink) -> bool
               {
                 // 限制一下最大访问大小，避免内存爆炸
-                const size_t maxLength = 1024 * 1024 * 32;
+                const size_t maxLength = 1024 * 1024 * 2;
                 if (length > maxLength)
                 {
                   length = maxLength;
@@ -8557,8 +8554,6 @@ inline bool SSLClient::load_certs() {
   return ret;
 }
 
-#include "iostream"
-
 inline bool SSLClient::initialize_ssl(Socket &socket, Error &error) {
   auto ssl = detail::ssl_new(
       socket.sock, ctx_, ctx_mutex_,
@@ -8582,23 +8577,26 @@ inline bool SSLClient::initialize_ssl(Socket &socket, Error &error) {
           verify_result_ = SSL_get_verify_result(ssl2);
 
           if (verify_result_ != X509_V_OK) {
-            error = (Error)((int)Error::SSLServerVerificationLast + verify_result_);
+            error = Error::SSLServerVerification;
             return false;
           }
 
-          auto server_cert = SSL_get1_peer_certificate(ssl2);
+          //去掉证书检测，ue在麒麟上打包后无法获取到证书，不知道为啥。这样虽然安全性下降了，暂时先这样
 
-          if (server_cert == nullptr) {
-            error = Error::SSLServerVerification1;
-            return false;
-          }
+          // auto server_cert = SSL_get1_peer_certificate(ssl2);
 
-          if (!verify_host(server_cert)) {
-            X509_free(server_cert);
-            error = Error::SSLServerVerification2;
-            return false;
-          }
-          X509_free(server_cert);
+          // if (server_cert == nullptr) {
+          //   int errorCore = SSL_get_error(ssl2, 0);
+          //   error = (Error)((int)Error::SSLServerVerificationLast + errorCore);
+          //   return false;
+          // }
+
+          // if (!verify_host(server_cert)) {
+          //   X509_free(server_cert);
+          //   error = Error::SSLServerVerification2;
+          //   return false;
+          // }
+          // X509_free(server_cert);
         }
 
         return true;

@@ -29,6 +29,21 @@
                 "CMAKE_C_COMPILER": "cl.exe",
                 "CMAKE_CXX_COMPILER": "cl.exe"
             }
+        },
+        {
+            "name": "linux-x64-Debug",
+            "displayName": "linux-x64-Debug",
+            "description": "使用编译器: C = /usr/bin/gcc-10, CXX = /usr/bin/g++-10",
+            "binaryDir": "${sourceDir}/out/build/${presetName}",
+            "toolset": "host=x64",
+            "architecture": "x64",
+            "cacheVariables": {
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}",
+                "CMAKE_C_COMPILER": "/usr/bin/gcc-10",
+                "CMAKE_CXX_COMPILER": "/usr/bin/g++-10",
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/out/vcpkg/scripts/buildsystems/vcpkg.cmake"
+            }
         }
     ],
     "buildPresets": [
