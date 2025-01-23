@@ -5592,14 +5592,14 @@ inline bool Server::set_base_dir(const std::string &dir,
 
 inline bool Server::set_mount_point(const std::string &mount_point,
                                     const std::string &dir, Headers headers) {
-  if (detail::is_dir(dir)) {
+  //if (detail::is_dir(dir)) {
     std::string mnt = !mount_point.empty() ? mount_point : "/";
     if (!mnt.empty() && mnt[0] == '/') {
       base_dirs_.push_back({mnt, dir, std::move(headers)});
       return true;
     }
-  }
-  return false;
+  //}
+  //return false;
 }
 
 inline bool Server::remove_mount_point(const std::string &mount_point) {
@@ -6064,7 +6064,7 @@ inline bool Server::read_content_core(Stream &strm, Request &req, Response &res,
   return true;
 }
 
-std::shared_ptr<std::ifstream> createFileStream(const std::string &path);
+std::shared_ptr<std::ifstream> createFileStream(const std::string &path, const std::string& basePath);
 
 inline bool Server::handle_file_request(const Request &req, Response &res,
                                         bool head) {
@@ -6073,15 +6073,17 @@ inline bool Server::handle_file_request(const Request &req, Response &res,
     if (!req.path.compare(0, entry.mount_point.size(), entry.mount_point)) {
       std::string sub_path = "/" + req.path.substr(entry.mount_point.size());
       if (detail::is_valid_path(sub_path)) {
-        auto path = entry.base_dir + sub_path;
-        if (path.back() == '/') { path += "index.html"; }
+        if (sub_path.back() == '/')
+        {
+          sub_path += "index.html";
+        }
 
           //auto mm = std::make_shared<detail::mmap>(path.c_str());
           //if (!mm->is_open()) { return false; }
-          auto readFileHandle = createFileStream(path);
-          if (!readFileHandle || !readFileHandle->is_open())
-          {
-            return false;
+        auto readFileHandle = createFileStream(sub_path, entry.base_dir);
+        if (!readFileHandle || !readFileHandle->is_open())
+        {
+          continue;
           }
 
                     for (const auto &kv : entry.headers) {
@@ -6093,7 +6095,7 @@ inline bool Server::handle_file_request(const Request &req, Response &res,
 
           res.set_content_provider(
               fileSize,
-              detail::find_content_type(path, file_extension_and_mimetype_map_,
+              detail::find_content_type(sub_path, file_extension_and_mimetype_map_,
                                         default_file_mimetype_),
               [readFileHandle, fileSize](size_t offset, size_t length, DataSink &sink) -> bool
               {

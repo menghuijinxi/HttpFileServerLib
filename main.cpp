@@ -8,7 +8,7 @@ int main()
     fmt::print("body: {}\n", body);
 
     auto server = FHttpFunction::CreateHttpFileServer();
-    server->Run({"test"}, 10003);
+    server->Run({"test", "测试1"}, 10003);
 
     while (true)
     {
