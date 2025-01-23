@@ -1,7 +1,7 @@
 cmake_minimum_required (VERSION 3.8)
 
 # 必须在add_library ， add_executable 前设置，否则无效。让脚本的字符串使用utf8格式编译
-add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/execution-charset:utf-8>") 
+#add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/execution-charset:utf-8>") 
 
 set(CMAKE_CXX_STANDARD 17)
 
