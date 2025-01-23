@@ -37,8 +37,12 @@ uint32_t FHttpFileServerRunnable::Run(const std::vector<std::string> &inFolderPa
 				{
 					if (!iter.is_directory())
 					{
+						#if _WIN32
 						std::string p = boost::nowide::narrow(iter.path().lexically_relative(folderPath).wstring());
 						json.push_back(p);
+						#else
+						json.push_back(iter.path().lexically_relative(folderPath).string());
+						#endif
 					}
 				}
 			}
