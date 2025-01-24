@@ -5599,7 +5599,7 @@ inline bool Server::set_mount_point(const std::string &mount_point,
       return true;
     }
   //}
-  //return false;
+  return false;
 }
 
 inline bool Server::remove_mount_point(const std::string &mount_point) {

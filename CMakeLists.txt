@@ -34,4 +34,4 @@ find_package(boost_algorithm REQUIRED CONFIG)
 target_link_libraries(HttpFileServerLib PRIVATE Boost::algorithm)
 
 install(TARGETS HttpFileServerLib)
-install(FILES HttpFileServerLib.h macro.h IHttpFileServer.h DESTINATION include)
+install(FILES HttpFileServerLib.h macro.h IHttpFileServer.h IHttpResult.h DESTINATION include)
