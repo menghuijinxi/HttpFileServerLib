@@ -38,6 +38,11 @@ public:
     {
         return Result->body.size();
     }
+
+    virtual int32_t GetErrorCode() const override
+    {
+        return static_cast<int32_t>(Result.error());
+    }
 };
 
 std::shared_ptr<FHttpLibResult> ClientGetRequest(const std::string &uri)

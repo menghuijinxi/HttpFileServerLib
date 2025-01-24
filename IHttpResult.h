@@ -8,5 +8,6 @@ public:
     virtual const char* GetBody() const = 0;
     virtual size_t GetBodySize() const = 0;
     virtual bool IsSuccess() const = 0;
+    virtual int32_t GetErrorCode() const = 0;
     virtual ~IHttpResult() = default;
 };
